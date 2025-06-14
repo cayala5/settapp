@@ -1,0 +1,23 @@
+{
+  "name": "sett",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test dist/*.test.js",
+    "test:dev": "node --test --loader ts-node/esm src/*.test.ts",
+    "test:watch": "node --test --watch dist/*.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
