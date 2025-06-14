@@ -6,6 +6,12 @@ export const SHAPES = ["d", "o", "s"] as const;
 export type SettCard =
   `${(typeof COLORS)[number]}${(typeof NUMBERS)[number]}${(typeof FILLS)[number]}${(typeof SHAPES)[number]}`;
 
+export function isSettCard(card: string): card is SettCard {
+  return COLORS.includes(card[0] as (typeof COLORS)[number]) &&
+    NUMBERS.includes(card[1] as (typeof NUMBERS)[number]) &&
+    FILLS.includes(card[2] as (typeof FILLS)[number]) &&
+    SHAPES.includes(card[3] as (typeof SHAPES)[number]);
+}
 export class SettDeck {
   private cards: SettCard[] = [];
 

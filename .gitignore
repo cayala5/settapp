@@ -9,6 +9,13 @@ dist/
 build/
 *.tsbuildinfo
 
+# Next.js
+.next/
+out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
 # Runtime data
 pids
 *.pid

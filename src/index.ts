@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { SettCard, SettDeck } from "./settdeck";
+import { isSettCard, SettCard, SettDeck } from "./settdeck";
 import { createInterface } from 'readline/promises';
 import { stdin, stdout } from 'process';
 
@@ -36,19 +36,53 @@ class SettGame {
     this.board = this.deck.deal(STARTING_BOARD_SIZE);
   }
 
-  playGame() {
+  private printBoard() {
+    const numRows = Math.ceil(this.board.length / 3);
+    const rows = [];
+    for (let i = 0; i < numRows; i++) {
+      const row = this.board.slice(i * 3, (i + 1) * 3);
+      rows.push(row.join(" "));
+    }
+    console.log(rows.join("\n"));
+  }
+
+  async playGame() {
     console.log("Welcome to Set!");
     console.log("The board is:");
-    console.log(this.board);
+    this.printBoard();
     while (!this.setExists()) {
       console.log("No set found. Dealing 3 more cards.");
       this.board = this.board.concat(this.deck.deal(3));
       console.log("The board is:");
-      console.log(this.board);
+      this.printBoard();
     }
-    console.log("Set found!");
-    console.log(this.setExists());
+    const userInput = await this.rl.question('Propose a set (e.g., "p1sd,g2eo,o3hd"): ');
+    console.log(`You proposed a set: ${userInput}`);
+    this.rl.close();
     return;
+  }
+
+  // TODO: Return somehow why the move is invalid
+  private validateMove(move: string): SettCard[] | null {
+    const cards = move.split(",");
+    if (cards.length !== 3) {
+      return null;
+    }
+    const validCards: SettCard[] = [];
+    for (const card of cards) {
+      if (!isSettCard(card)) {
+        return null;
+      }
+      if (!this.boardContains(card)) {
+        return null;
+      }
+      validCards.push(card);
+    }
+    return validCards;
+  }
+
+  private boardContains(card: SettCard): boolean {
+    return this.board.includes(card);
   }
 
   private propertyIsSet(
@@ -87,7 +121,7 @@ class SettGame {
   }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const name = args[0];
@@ -96,7 +130,7 @@ function main(): void {
   console.log(greet({ name, emoji: useEmoji }));
 
   const game = new SettGame();
-  game.playGame();
+  await game.playGame();
 }
 
 // Run the main function if this file is executed directly
@@ -104,4 +138,5 @@ if (require.main === module) {
   main();
 }
 
-export { greet, GreetingOptions };
+export { greet };
+export type { GreetingOptions };
