@@ -1,5 +1,10 @@
-import { SettCard } from "./settdeck";
 import { SettGame } from "./settgame";
+import {
+  incomingMsgTypes,
+  OutgoingMsg,
+  outgoingMsgTypes,
+  ProposedMoveOutMsg,
+} from "./common/messages";
 
 // Basic web worker for Set game
 console.log("Game worker initialized");
@@ -10,11 +15,16 @@ const game = new SettGame();
 self.addEventListener("message", (event) => {
   console.log("Worker received message:", event.data);
 
-  // Echo back a simple response
-  self.postMessage({
-    type: "WORKER_READY",
-    message: "Worker is running!",
-  });
+  if (event.data.type === incomingMsgTypes.ProposedMove) {
+    const move = event.data.move;
+    const validMove = game.makeMove(move);
+    const response: ProposedMoveOutMsg = {
+      type: outgoingMsgTypes.ProposedMove,
+      move: validMove,
+      board: game.board,
+    };
+    send(response);
+  }
 });
 
 // Let the main thread know we're ready
@@ -22,12 +32,11 @@ self.postMessage({
   type: "WORKER_INITIALIZED",
   message: "Worker has been initialized",
 });
-self.postMessage({
-    type: "BOARD_STATE",
-    board: game.board
-} satisfies BoardStateMsg)
+send({
+  type: outgoingMsgTypes.BoardState,
+  board: game.board,
+});
 
-interface BoardStateMsg {
-    type: "BOARD_STATE",
-    board: SettCard[]
+function send(msg: OutgoingMsg) {
+  self.postMessage(msg);
 }

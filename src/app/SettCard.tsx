@@ -1,13 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   CardColor,
   CardFill,
   CardNumber,
   CardShape,
   SettCard as SettCardString,
-} from "../settdeck";
+} from "../common/types";
 import { useGameWorker } from "../hooks/useGameWorker";
+import { incomingMsgTypes, outgoingMsgTypes } from "@/common/messages";
+import { WorkerTestPanel } from "../components/WorkerTestPanel";
 
 interface CardInfo {
   color: CardColor;
@@ -155,16 +157,31 @@ function SettCard({
 export function SettBoard() {
   const [selectedCards, setSelectedCards] = useState<SettCardString[]>([]);
   const [board, setBoard] = useState<SettCardString[]>([]);
-  const { workerMessage, sendMessage, isWorkerReady } = useGameWorker({
-    onMessage: (event) => {
-      console.log('SettBoard received worker message:', event.data);
-      if (event.data.type === "BOARD_STATE") {
-        setBoard(event.data.board);
-      }
+
+  const handleWorkerMessage = useCallback((event: MessageEvent) => {
+    console.log("SettBoard received worker message:", event.data);
+    if (event.data.type === outgoingMsgTypes.BoardState) {
+      setBoard(event.data.board);
+    } else if (event.data.type === outgoingMsgTypes.ProposedMove) {
+      setBoard(event.data.board);
     }
+  }, []);
+
+  const { workerMessage, sendMessage, isWorkerReady } = useGameWorker({
+    onMessage: handleWorkerMessage,
   });
 
-  const handleCardSelect = (card: SettCardString) => {
+  useEffect(() => {
+    if (selectedCards.length === 3) {
+      sendMessage({
+        type: incomingMsgTypes.ProposedMove,
+        move: selectedCards.join(","),
+      });
+      setSelectedCards([]);
+    }
+  }, [selectedCards, sendMessage]);
+
+  function handleCardSelect(card: SettCardString) {
     if (selectedCards.includes(card)) {
       setSelectedCards(selectedCards.filter((c) => c !== card));
     } else {
@@ -174,22 +191,15 @@ export function SettBoard() {
         setSelectedCards([...selectedCards, card]);
       }
     }
-  };
+  }
 
   return (
     <div className="space-y-4">
-      <div className="text-center p-4 bg-blue-100 rounded-lg">
-        <p className="text-sm text-blue-800">
-          Worker Status: {workerMessage} {isWorkerReady ? "✅" : "⏳"}
-        </p>
-        <button
-          onClick={() => sendMessage({ type: 'MANUAL_TEST', data: 'Button clicked!' })}
-          disabled={!isWorkerReady}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
-        >
-          Test Worker
-        </button>
-      </div>
+      <WorkerTestPanel
+        workerMessage={workerMessage}
+        isWorkerReady={isWorkerReady}
+        sendMessage={sendMessage}
+      />
       <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl">
         {board.map((card) => (
           <SettCard
