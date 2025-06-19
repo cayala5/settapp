@@ -6,7 +6,12 @@ interface UseGameWorkerReturn {
   isWorkerReady: boolean;
 }
 
-export function useGameWorker(): UseGameWorkerReturn {
+interface UseGameWorkerOptions {
+  onMessage?: (event: MessageEvent) => void;
+}
+
+export function useGameWorker(options: UseGameWorkerOptions = {}): UseGameWorkerReturn {
+  const { onMessage } = options;
   const [workerMessage, setWorkerMessage] = useState<string>('Initializing worker...');
   const [isWorkerReady, setIsWorkerReady] = useState<boolean>(false);
   const workerRef = useRef<Worker | null>(null);
@@ -27,6 +32,11 @@ export function useGameWorker(): UseGameWorkerReturn {
         
         if (event.data.type === 'WORKER_INITIALIZED') {
           setIsWorkerReady(true);
+        }
+
+        // Call the custom onMessage handler if provided
+        if (onMessage) {
+          onMessage(event);
         }
       };
 
@@ -57,7 +67,7 @@ export function useGameWorker(): UseGameWorkerReturn {
         workerRef.current = null;
       }
     };
-  }, []);
+  }, [onMessage]);
 
   const sendMessage = useCallback((message: unknown) => {
     if (workerRef.current && isWorkerReady) {

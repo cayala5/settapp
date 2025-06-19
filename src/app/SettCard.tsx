@@ -9,12 +9,6 @@ import {
 } from "../settdeck";
 import { useGameWorker } from "../hooks/useGameWorker";
 
-const CardColorToRealColor: Record<CardColor, string> = {
-  g: "green-500",
-  p: "purple-500",
-  o: "orange-500",
-};
-
 interface CardInfo {
   color: CardColor;
   number: number;
@@ -160,7 +154,15 @@ function SettCard({
 
 export function SettBoard() {
   const [selectedCards, setSelectedCards] = useState<SettCardString[]>([]);
-  const { workerMessage, sendMessage, isWorkerReady } = useGameWorker();
+  const [board, setBoard] = useState<SettCardString[]>([]);
+  const { workerMessage, sendMessage, isWorkerReady } = useGameWorker({
+    onMessage: (event) => {
+      console.log('SettBoard received worker message:', event.data);
+      if (event.data.type === "BOARD_STATE") {
+        setBoard(event.data.board);
+      }
+    }
+  });
 
   const handleCardSelect = (card: SettCardString) => {
     if (selectedCards.includes(card)) {
@@ -173,18 +175,6 @@ export function SettBoard() {
       }
     }
   };
-
-  const sampleCards: SettCardString[] = [
-    "g1ho",
-    "p1hs",
-    "o1hd",
-    "g2ho",
-    "p2hs",
-    "o2hd",
-    "g3ho",
-    "p3hs",
-    "o3hd",
-  ];
 
   return (
     <div className="space-y-4">
@@ -201,7 +191,7 @@ export function SettBoard() {
         </button>
       </div>
       <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl">
-        {sampleCards.map((card) => (
+        {board.map((card) => (
           <SettCard
             key={card}
             card={card}
