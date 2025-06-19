@@ -43,7 +43,7 @@ export function Shape({ shape, fill, patternId }: ShapeProps) {
           width="4"
           height="4"
         >
-          <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+          <circle cx="2" cy="2" r="1.5" stroke="currentColor" />
         </pattern>
       </defs>
       {/* Clone the shape element and add the fill prop */}

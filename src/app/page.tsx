@@ -1,8 +1,5 @@
-import Image from "next/image";
-import { SettBoard } from "./SettCard";
+import { SettBoard } from "../components/SettBoard";
 
 export default function Home() {
-  return (
-<SettBoard/>
-  );
+  return <SettBoard />;
 }

@@ -6,6 +6,7 @@ const STARTING_BOARD_SIZE = 12;
 export class SettGame {
   private deck: SettDeck;
   private board_cards: SettCard[];
+  private existing_set: ValidMove | null = null;
 
   constructor() {
     do {
@@ -16,6 +17,11 @@ export class SettGame {
 
   get board(): SettCard[] {
     return this.board_cards;
+  }
+
+  get existingSet(): ValidMove | null {
+    this.setExists(); // will update existing_set if it exists
+    return this.existing_set;
   }
 
   /*
@@ -38,19 +44,31 @@ export class SettGame {
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
     if (cards) {
-      this.board_cards = this.board_cards.filter(
-        (card) => !cards.includes(card)
-      );
-      this.replaceCardsAfterMove();
+      do {
+        this.replenishBoard(cards);
+      } while (!this.setExists() && this.deck.getCardCount() > 0);
     }
 
     return cards;
   }
 
-  private replaceCardsAfterMove() {
-    do {
+  // Adds three new cards to the board, replacing cards from a successful move
+  // if necessary.
+  private replenishBoard(move: ValidMove) {
+    if (this.boardContains(move[0])) {
+      const newCards = this.deck.deal(3);
+      newCards.forEach((newCard, index) => {
+        const oldCard = move[index];
+        this.board_cards[this.board_cards.indexOf(oldCard)] = newCard;
+      });
+      // If there were fewer new cards than old, still need to remove
+      // the old cards
+      this.board_cards = this.board_cards.filter(
+        (card) => !move.includes(card)
+      );
+    } else {
       this.board_cards = this.board_cards.concat(this.deck.deal(3));
-    } while (!this.setExists() && this.deck.getCardCount() > 0);
+    }
   }
 
   // TODO: Return somehow why the move is invalid
@@ -98,6 +116,10 @@ export class SettGame {
   }
 
   private setExists(): ValidMove | null {
+    if (this.existing_set && this.boardContains(this.existing_set[0])) {
+      return this.existing_set;
+    }
+
     for (let i = 0; i < this.board_cards.length; i++) {
       for (let j = i + 1; j < this.board_cards.length; j++) {
         for (let k = j + 1; k < this.board_cards.length; k++) {
@@ -108,11 +130,12 @@ export class SettGame {
               this.board_cards[k],
             ])
           ) {
-            return [
+            this.existing_set = [
               this.board_cards[i],
               this.board_cards[j],
               this.board_cards[k],
             ];
+            return this.existing_set;
           }
         }
       }
