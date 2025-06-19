@@ -7,6 +7,7 @@ export class SettGame {
   private deck: SettDeck;
   private board_cards: SettCard[];
   private existing_set: ValidMove | null = null;
+  private sets_found: ValidMove[] = [];
 
   constructor() {
     do {
@@ -22,6 +23,14 @@ export class SettGame {
   get existingSet(): ValidMove | null {
     this.setExists(); // will update existing_set if it exists
     return this.existing_set;
+  }
+
+  get setsFound(): number {
+    return this.sets_found.length;
+  }
+
+  get deckSize(): number {
+    return this.deck.getCardCount();
   }
 
   /*
@@ -44,6 +53,7 @@ export class SettGame {
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
     if (cards) {
+      this.sets_found.push(cards);
       do {
         this.replenishBoard(cards);
       } while (!this.setExists() && this.deck.getCardCount() > 0);

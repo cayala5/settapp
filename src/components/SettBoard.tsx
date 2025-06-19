@@ -6,9 +6,13 @@ import { incomingMsgTypes, outgoingMsgTypes } from "@/common/messages";
 import { WorkerTestPanel } from "./WorkerTestPanel";
 import SettCard from "./SettCard";
 
+const DEBUG_MODE = false;
+
 export function SettBoard() {
   const [selectedCards, setSelectedCards] = useState<SettCardString[]>([]);
   const [board, setBoard] = useState<SettCardString[]>([]);
+  const [setsFound, setSetsFound] = useState(0);
+  const [deckSize, setDeckSize] = useState(0);
 
   const handleWorkerMessage = useCallback((event: MessageEvent) => {
     console.log("SettBoard received worker message:", event.data);
@@ -18,7 +22,9 @@ export function SettBoard() {
       event.data.type === outgoingMsgTypes.ProposedMove &&
       event.data.move
     ) {
-      setBoard(event.data.board);
+      setBoard(event.data.gameState.board);
+      setSetsFound(event.data.gameState.setsFound);
+      setDeckSize(event.data.gameState.deckSize);
     }
   }, []);
 
@@ -50,12 +56,18 @@ export function SettBoard() {
 
   return (
     <div className="space-y-4">
-      <WorkerTestPanel
-        workerMessage={workerMessage}
-        isWorkerReady={isWorkerReady}
-        sendMessage={sendMessage}
-      />
-      <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl">
+      {DEBUG_MODE && (
+        <WorkerTestPanel
+          workerMessage={workerMessage}
+          isWorkerReady={isWorkerReady}
+          sendMessage={sendMessage}
+        />
+      )}
+      <div>
+        <p>Sets found: {setsFound}</p>
+        <p>Deck size: {deckSize}</p>
+      </div>
+      <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl w-fit">
         {board.map((card) => (
           <SettCard
             key={card}

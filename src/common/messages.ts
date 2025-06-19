@@ -11,13 +11,19 @@ export const incomingMsgTypes = {
   ProposedMove: "PROPOSED_MOVE_IN",
 };
 
+interface GameState {
+  board: SettCard[];
+  setsFound: number;
+  deckSize: number;
+}
+
 // #region Outgoing messages
 export type OutgoingMsg = ProposedMoveOutMsg | BoardStateOutMsg;
 
 export interface ProposedMoveOutMsg {
   type: typeof outgoingMsgTypes.ProposedMove;
   move: ValidMove | null;
-  board: SettCard[];
+  gameState: GameState;
 }
 
 export interface BoardStateOutMsg {

@@ -21,7 +21,11 @@ self.addEventListener("message", (event) => {
     const response: ProposedMoveOutMsg = {
       type: outgoingMsgTypes.ProposedMove,
       move: validMove,
-      board: game.board,
+      gameState: {
+        board: game.board,
+        setsFound: game.setsFound,
+        deckSize: game.deckSize,
+      },
     };
     send(response);
   }
