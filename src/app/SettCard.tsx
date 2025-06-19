@@ -7,6 +7,7 @@ import {
   CardShape,
   SettCard as SettCardString,
 } from "../settdeck";
+import { useGameWorker } from "../hooks/useGameWorker";
 
 const CardColorToRealColor: Record<CardColor, string> = {
   g: "green-500",
@@ -159,8 +160,9 @@ function SettCard({
 
 export function SettBoard() {
   const [selectedCards, setSelectedCards] = useState<SettCardString[]>([]);
+  const { workerMessage, sendMessage, isWorkerReady } = useGameWorker();
 
-  const handleCardSelect2 = (card: SettCardString) => {
+  const handleCardSelect = (card: SettCardString) => {
     if (selectedCards.includes(card)) {
       setSelectedCards(selectedCards.filter((c) => c !== card));
     } else {
@@ -185,15 +187,29 @@ export function SettBoard() {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl">
-      {sampleCards.map((card) => (
-        <SettCard
-          key={card}
-          card={card}
-          isSelected={selectedCards.includes(card)}
-          onSelect={handleCardSelect2}
-        />
-      ))}
+    <div className="space-y-4">
+      <div className="text-center p-4 bg-blue-100 rounded-lg">
+        <p className="text-sm text-blue-800">
+          Worker Status: {workerMessage} {isWorkerReady ? "✅" : "⏳"}
+        </p>
+        <button
+          onClick={() => sendMessage({ type: 'MANUAL_TEST', data: 'Button clicked!' })}
+          disabled={!isWorkerReady}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+        >
+          Test Worker
+        </button>
+      </div>
+      <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl">
+        {sampleCards.map((card) => (
+          <SettCard
+            key={card}
+            card={card}
+            isSelected={selectedCards.includes(card)}
+            onSelect={handleCardSelect}
+          />
+        ))}
+      </div>
     </div>
   );
 }
