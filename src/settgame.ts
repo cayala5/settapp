@@ -33,6 +33,10 @@ export class SettGame {
     return this.deck.getCardCount();
   }
 
+  get isOver(): boolean {
+    return this.deckSize === 0 && !this.setExists();
+  }
+
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
     if (cards) {

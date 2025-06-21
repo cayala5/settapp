@@ -30,7 +30,7 @@ self.addEventListener("message", (event) => {
     };
     send(response);
 
-    if (game.deckSize === 0) {
+    if (game.isOver) {
       const response: GameOverOutMsg = {
         type: outgoingMsgTypes.GameOver,
       };
