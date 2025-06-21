@@ -5,6 +5,7 @@ import { SettCard, ValidMove } from "./types";
 export const outgoingMsgTypes = {
   BoardState: "BOARD_STATE_OUT",
   ProposedMove: "PROPOSED_MOVE_OUT",
+  GameOver: "GAME_OVER_OUT",
 };
 
 export const incomingMsgTypes = {
@@ -18,7 +19,14 @@ interface GameState {
 }
 
 // #region Outgoing messages
-export type OutgoingMsg = ProposedMoveOutMsg | BoardStateOutMsg;
+export type OutgoingMsg =
+  | ProposedMoveOutMsg
+  | BoardStateOutMsg
+  | GameOverOutMsg;
+
+export interface GameOverOutMsg {
+  type: typeof outgoingMsgTypes.GameOver;
+}
 
 export interface ProposedMoveOutMsg {
   type: typeof outgoingMsgTypes.ProposedMove;
