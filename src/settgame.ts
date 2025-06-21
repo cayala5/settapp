@@ -33,23 +33,6 @@ export class SettGame {
     return this.deck.getCardCount();
   }
 
-  /*
-  async playGameCommandLine() {
-    console.log("Welcome to Set!");
-    console.log("The board is:");
-    this.printBoard();
-    while (!this.setExists()) {
-      console.log("No set found. Dealing 3 more cards.");
-      this.board_cards = this.board_cards.concat(this.deck.deal(3));
-      console.log("The board is:");
-      this.printBoard();
-    }
-    //const userInput = await this.rl.question('Propose a set (e.g., "p1sd,g2eo,o3hd"): ');
-    //console.log(`You proposed a set: ${userInput}`);
-    //this.rl.close();
-    return;
-  }
-  */
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
     if (cards) {

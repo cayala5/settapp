@@ -1,5 +1,6 @@
 import { SettGame } from "./settgame";
 import {
+  GameOverOutMsg,
   incomingMsgTypes,
   OutgoingMsg,
   outgoingMsgTypes,
@@ -28,6 +29,13 @@ self.addEventListener("message", (event) => {
       },
     };
     send(response);
+
+    if (game.deckSize === 0) {
+      const response: GameOverOutMsg = {
+        type: outgoingMsgTypes.GameOver,
+      };
+      send(response);
+    }
   }
 });
 
