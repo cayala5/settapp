@@ -7,12 +7,14 @@ import { WorkerTestPanel } from "./WorkerTestPanel";
 import SettCard from "./SettCard";
 
 const DEBUG_MODE = false;
+const STARTING_DECK_SIZE = 81 - 12; // full deck - starting board size
 
 export function SettBoard() {
   const [selectedCards, setSelectedCards] = useState<SettCardString[]>([]);
   const [board, setBoard] = useState<SettCardString[]>([]);
   const [setsFound, setSetsFound] = useState(0);
-  const [deckSize, setDeckSize] = useState(0);
+  const [deckSize, setDeckSize] = useState(STARTING_DECK_SIZE);
+  const [gameOver, setGameOver] = useState(false);
 
   const handleWorkerMessage = useCallback((event: MessageEvent) => {
     console.log("SettBoard received worker message:", event.data);
@@ -25,6 +27,8 @@ export function SettBoard() {
       setBoard(event.data.gameState.board);
       setSetsFound(event.data.gameState.setsFound);
       setDeckSize(event.data.gameState.deckSize);
+    } else if (event.data.type === outgoingMsgTypes.GameOver) {
+      setGameOver(true);
     }
   }, []);
 
@@ -63,10 +67,11 @@ export function SettBoard() {
           sendMessage={sendMessage}
         />
       )}
-      <div>
-        <p>Sets found: {setsFound}</p>
-        <p>Deck size: {deckSize}</p>
-      </div>
+      {gameOver ? (
+        <GameOver />
+      ) : (
+        <GameInfo setsFound={setsFound} deckSize={deckSize} />
+      )}
       <div className="grid grid-cols-3 gap-4 bg-green-400 p-6 rounded-xl w-fit">
         {board.map((card) => (
           <SettCard
@@ -77,6 +82,29 @@ export function SettBoard() {
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+function GameInfo({
+  setsFound,
+  deckSize,
+}: {
+  setsFound: number;
+  deckSize: number;
+}) {
+  return (
+    <div>
+      <p>Sets found: {setsFound}</p>
+      <p>Deck size: {deckSize}</p>
+    </div>
+  );
+}
+
+function GameOver() {
+  return (
+    <div>
+      <p>Game over!</p>
     </div>
   );
 }
