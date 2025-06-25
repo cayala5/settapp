@@ -37,6 +37,15 @@ export class SettGame {
     return this.deckSize === 0 && !this.setExists();
   }
 
+  public makeValidMove() {
+    const move = this.existingSet;
+    if (move) {
+      this.makeMove(move.join(","));
+      return move;
+    }
+    return null;
+  }
+
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
     if (cards) {
@@ -113,7 +122,12 @@ export class SettGame {
   }
 
   private setExists(): ValidMove | null {
-    if (this.existing_set && this.boardContains(this.existing_set[0])) {
+    if (
+      this.existing_set &&
+      this.boardContains(this.existing_set[0]) &&
+      this.boardContains(this.existing_set[1]) &&
+      this.boardContains(this.existing_set[2])
+    ) {
       return this.existing_set;
     }
 
