@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { SettCard as SettCardString } from "../common/types";
 import { useGameWorker } from "../hooks/useGameWorker";
+import { useBeforeUnload } from "../hooks/useBeforeUnload";
 import { incomingMsgTypes, outgoingMsgTypes } from "@/common/messages";
 import { WorkerTestPanel } from "./WorkerTestPanel";
 import SettCard from "./SettCard";
@@ -15,6 +16,8 @@ export function SettBoard() {
   const [setsFound, setSetsFound] = useState(0);
   const [deckSize, setDeckSize] = useState(STARTING_DECK_SIZE);
   const [gameOver, setGameOver] = useState(false);
+
+  useBeforeUnload(!gameOver);
 
   const handleWorkerMessage = useCallback((event: MessageEvent) => {
     console.log("SettBoard received worker message:", event.data);
