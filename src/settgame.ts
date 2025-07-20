@@ -58,6 +58,7 @@ export class SettGame {
       this.addCards();
     }
 
+    this.sets_found.push(cards);
     return cards;
   }
 

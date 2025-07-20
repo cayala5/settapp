@@ -3,6 +3,11 @@ import assert from "node:assert";
 import { SettDeck } from "./settdeck";
 import { COLORS, NUMBERS, FILLS, SHAPES, type SettCard } from "./common/types";
 
+/* TODO: SettGame tests
+- test that found sets are added to sets_found
+- test makeMove
+*/
+
 describe("SettDeck", () => {
   test("should create deck with 81 cards", () => {
     const deck = new SettDeck();
