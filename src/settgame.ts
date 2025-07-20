@@ -48,33 +48,41 @@ export class SettGame {
 
   public makeMove(move: string): ValidMove | null {
     const cards = this.validateMove(move);
-    if (cards) {
-      this.sets_found.push(cards);
-      do {
-        this.replenishBoard(cards);
-      } while (!this.setExists() && this.deck.getCardCount() > 0);
+    if (!cards) {
+      return null;
+    }
+
+    this.replaceCards(cards);
+
+    while (!this.setExists() && this.deck.getCardCount() > 0) {
+      this.addCards();
     }
 
     return cards;
   }
 
-  // Adds three new cards to the board, replacing cards from a successful move
-  // if necessary.
-  private replenishBoard(move: ValidMove) {
-    if (this.boardContains(move[0])) {
-      const newCards = this.deck.deal(3);
-      newCards.forEach((newCard, index) => {
-        const oldCard = move[index];
-        this.board_cards[this.board_cards.indexOf(oldCard)] = newCard;
-      });
-      // If there were fewer new cards than old, still need to remove
-      // the old cards
-      this.board_cards = this.board_cards.filter(
-        (card) => !move.includes(card)
-      );
+  // Replaces the cards from a successful move. If there are fewer than 12
+  // cards after the move, it will use new cards. Otherwise, it will replace
+  // with the last 3 cards. Note that caller is responsible for checking whether
+  // the cards in move are on the board.
+  private replaceCards(move: ValidMove) {
+    let newCards: SettCard[];
+    if (this.board_cards.length - 3 < 12 && this.deck.getCardCount() > 0) {
+      newCards = this.deck.deal(3);
     } else {
-      this.board_cards = this.board_cards.concat(this.deck.deal(3));
+      newCards = this.board_cards.splice(-3, 3);
     }
+
+    newCards.forEach((newCard, index) => {
+      const oldCard = move[index];
+      this.board_cards[this.board_cards.indexOf(oldCard)] = newCard;
+    });
+  }
+
+  // Adds three new cards to the end of the board. Caller is responsible for
+  // checking that there are cards left in the deck.
+  private addCards() {
+    this.board_cards = this.board_cards.concat(this.deck.deal(3));
   }
 
   // TODO: Return somehow why the move is invalid
